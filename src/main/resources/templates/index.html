@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en"
+xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Yatzy</title>
+    <link th:if="${mode=='development'}"  rel="stylesheet" href="../static/bootstrap.css" th:href="@{/bootstrap.css}"/>
+    <link th:if="${mode=='production'}"  rel="stylesheet" href="../static/bootstrap.min.css" th:href="@{/bootstrap.min.css}"/>
+    <script type="text/javascript" src="/static/angular.min.js" th:src="@{/angular.min.js}" ></script>
+    <script type="text/javascript" src="/static/app/app.module.js" th:src="@{/app/app.module.js}" ></script>
+    <script type="text/javascript" src="/static/app/yatzy.controller.js" th:src="@{/app/yatzy.controller.js}" ></script>
+    </head>
+<body ng-app="app" >
+
+<header>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Yatzy Results</a>
+            </div>
+        </div>
+    </nav>
+</header>
+<div>
+    <div class="row">
+        <div class="col-lg-offset-2 col-lg-8">
+           <div ng-controller="MyController as vm">
+
+               <p class="">What would you like to view? Pick a button </p>
+               <div class="btn-group" role="group">
+                   <button  ng-click="show=!show;vm.getAll()" type="button" class="btn btn-default">Player game history</button>
+               </div>
+               <div class="btn-group" role="group">
+                   <button ng-click="lala=!lala;vm.viewHighScores()" type="button" class="btn btn-default">View HighScores</button>
+               </div>
+               <div class="btn-group" role="group">
+                   <button ng-click="blabla=!blabla;vm.getGames()" type="button" class="btn btn-default">View all rounds for a game</button>
+               </div>
+
+               <div ng-show="show" >
+                   <p class="">Select by pressing a button or write in searchbox </p>
+
+                   <table class="table" >
+                <thead>
+                <tr>
+                    <th>PlayerID</th>
+                    <th>Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="player in vm.players">
+                    <td> {{player.playerid}}</td>
+                    <td> {{player.name}}</td>
+                    <td>
+                        <button class="btn btn-danger" ng-click="vm.getHistory(player.name)">View History</button>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+                    <h4>Name please:</h4>
+                   <input  class="form-control" type="text" ng-model="name"/><button class="btn btn-default" ng-click="vm.getHistory(name)" ng-enter="vm.getHistory(name)">Search</button>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Game Id</th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="u in vm.historia " ng-init="vm.getPlayerstatus(u.game.id)">
+                    <td> {{u.game.id}}</td>
+                    <td> {{u.game.date}}</td>
+                    <td> {{u.players.name}}</td>
+                    <td> {{u.score}}</td>
+
+                </tr>
+                <tr>
+                    <th>Winner and Losers</th>
+                </tr>
+                <tr  ng-repeat="s in vm.playerstatus | orderBy : '-score'">
+                    <td>{{s.score}}</td>
+                    <td>{{s.players.name}}</td>
+                </tr>
+                </tbody>
+            </table>
+               </div>
+
+
+               <div ng-show="lala">
+               <table class="table">
+                   <thead>
+                   <tr>
+                       <th> Score</th>
+                       <th> Name</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <tr ng-repeat="w in vm.scores">
+                       <td>{{w.score}}</td>
+                       <td>{{w.players.name}}</td>
+                   </tr>
+                   </tbody>
+               </table>
+               </div>
+
+               <div ng-show="blabla">
+
+
+               <table class="table">
+                   <thead>
+                   <tr>
+                       <th>Game</th>
+                       <th>Date</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <tr ng-repeat="g in vm.games ">
+                       <td>{{g.id}}</td>
+                       <td>{{g.date}}</td>
+                       <td>
+                           <button class="btn btn-danger" ng-click="vm.viewRounds(g.id);vm.getDice(g.id)">See rounds</button>
+                       </td>
+                   </tr>
+                   </tbody>
+               </table>
+                   <h4>Write game id you want to see all rounds for:</h4>
+                   <input  class="form-control" type="text" ng-model="id"/><button class="btn btn-default" ng-click="vm.viewRounds(id);vm.getDice(id)" ng-enter="vm.viewRounds(id);vm.getDice(id)">Search</button>
+                   <table class="table">
+                   <thead>
+                   <tr>
+                       <th>Round</th>
+                       <th>Player</th>
+                       <th>Score type</th>
+                       <th>Score</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <tr ng-repeat="r in vm.round">
+                       <td>{{r.roundnr}}</td>
+                       <td>{{r.players.name}}</td>
+                       <td>{{r.scoretypes.name}}</td>
+                       <td>{{r.score}}</td>
+                   </tr>
+                   </tbody>
+               </table>
+
+               <table class="table">
+                   <thead>
+                   <tr>
+                       <th>DiceNr</th>
+                       <th>Round</th>
+                       <th>Player</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <tr ng-repeat="d in vm.dice">
+                        <td>{{d.nr}}</td>
+                        <td>{{d.rounds.roundnr}}</td>
+                        <td>{{d.rounds.players.name}}</td>
+                   </tr>
+                   </tbody>
+               </table>
+               </div>
+           </div>
+
+        </div>
+
+    </div>
+
+</div>
+<footer class="footer" style="position: relative; bottom: 0;background-color: #f5f5f5;"  >
+    <div class="container">
+        <p  th:text="${#dates.format(datetime,'dd MMM yyyy HH:mm')}" class="text-muted">Todays date: </p>
+    </div>
+</footer>
+</body>
+</html>
